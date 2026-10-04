@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TourRide - Commercial Tourist Transport Aggregator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f3ff',
+                            100: '#e1e7fe',
+                            500: '#4f46e5',
+                            600: '#4338ca',
+                            700: '#3730a3',
+                            800: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans antialiased text-slate-800 bg-slate-50">
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand Logo -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchRole('renter')">
+                    <div class="bg-brand-600 text-white p-2.5 rounded-xl shadow-md flex items-center justify-center">
+                        <i class="fa-solid fa-van-shuttle text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="text-2xl font-black text-slate-900 tracking-tight">Tour<span class="text-brand-600">Ride</span></span>
+                        <span class="hidden sm:inline-block ml-2 px-2 py-0.5 text-[10px] font-bold bg-brand-50 text-brand-600 border border-brand-100 rounded-md">AGGREGATOR PLATFORM</span>
+                    </div>
+                </div>
+
+                <!-- Active Role Selector / Nav -->
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <div class="bg-slate-100 p-1 rounded-xl flex text-xs font-semibold">
+                        <button id="role-btn-renter" onclick="switchRole('renter')" class="px-3 py-1.5 rounded-lg text-brand-600 bg-white shadow-sm transition-all flex items-center space-x-1">
+                            <i class="fa-solid fa-user"></i>
+                            <span class="hidden md:inline">Renter / Tourist</span>
+                        </button>
+                        <button id="role-btn-owner" onclick="switchRole('owner')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all flex items-center space-x-1">
+                            <i class="fa-solid fa-bus"></i>
+                            <span class="hidden md:inline">Fleet Partner</span>
+                        </button>
+                        <button id="role-btn-admin" onclick="switchRole('admin')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all flex items-center space-x-1 relative">
+                            <i class="fa-solid fa-user-shield"></i>
+                            <span class="hidden md:inline">Admin Hub</span>
+                            <span id="admin-badge-count" class="ml-1 bg-amber-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">1</span>
+                        </button>
+                    </div>
+
+                    <!-- My Bookings Quick Link for Renters -->
+                    <button onclick="switchRole('renter'); switchRenterTab('my-bookings')" class="p-2 text-slate-600 hover:text-brand-600 relative" title="My Bookings">
+                        <i class="fa-solid fa-ticket text-lg"></i>
+                        <span id="renter-booking-count" class="absolute -top-1 -right-1 bg-brand-600 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">1</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ==================== VIEW 1: RENTER / TOURIST PORTAL ==================== -->
+        <div id="view-renter" class="role-view space-y-6">
+            
+            <!-- Renter Sub-Navigation -->
+            <div class="flex border-b border-slate-200">
+                <button id="tab-btn-search" onclick="switchRenterTab('search')" class="px-4 py-2.5 font-bold text-sm text-brand-600 border-b-2 border-brand-600 flex items-center space-x-2">
+                    <i class="fa-solid fa-magnifying-glass"></i> <span>Search & Compare Vehicles</span>
+                </button>
+                <button id="tab-btn-bookings" onclick="switchRenterTab('my-bookings')" class="px-4 py-2.5 font-semibold text-sm text-slate-500 hover:text-slate-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-receipt"></i> <span>My Confirmed Trips</span>
+                </button>
+            </div>
+
+            <!-- SEARCH TAB CONTENT -->
+            <div id="renter-sub-search" class="space-y-6">
+                
+                <!-- Search Box Header -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-4">
+                        <div>
+                            <h1 class="text-xl font-extrabold text-slate-900">Find Group Tourist Vehicles</h1>
+                            <p class="text-xs text-slate-500 mt-0.5">Tempo Travellers, Mini Buses & Luxury Coaches with verified drivers.</p>
+                        </div>
+                        
+                        <!-- Trip Type Toggle -->
+                        <div class="bg-slate-100 p-1 rounded-xl flex text-xs font-semibold">
+                            <button id="btn-triptype-round" onclick="setTripType('roundtrip')" class="px-3 py-1.5 rounded-lg bg-white shadow-sm text-brand-600">Round Trip</button>
+                            <button id="btn-triptype-oneway" onclick="setTripType('oneway')" class="px-3 py-1.5 rounded-lg text-slate-600">One Way</button>
+                        </div>
+                    </div>
+
+                    <!-- Search Controls Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Pickup City</label>
+                            <div class="relative">
+                                <i class="fa-solid fa-location-dot absolute left-3 top-3 text-brand-600 text-sm"></i>
+                                <input type="text" id="search-from" value="Kochi" oninput="triggerSearchUpdate()" class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Destination City</label>
+                            <div class="relative">
+                                <i class="fa-solid fa-flag-checkered absolute left-3 top-3 text-emerald-600 text-sm"></i>
+                                <input type="text" id="search-to" value="Munnar" oninput="triggerSearchUpdate()" class="w-full bg-slate-50 border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Start Date</label>
+                            <input type="date" id="search-start-date" onchange="triggerSearchUpdate()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">End Date</label>
+                            <input type="date" id="search-end-date" onchange="triggerSearchUpdate()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-semibold focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="triggerSearchUpdate()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-calculator"></i>
+                                <span>Recalculate Fares</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Marketplace Main Body -->
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    
+                    <!-- Left Sidebar Filters -->
+                    <div class="space-y-6">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <h3 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
+                                    <i class="fa-solid fa-filter text-brand-600"></i>
+                                    <span>Filter Options</span>
+                                </h3>
+                                <button onclick="resetFilters()" class="text-xs font-semibold text-brand-600 hover:underline">Reset</button>
+                            </div>
+
+                            <!-- Vehicle Segment Filter -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Vehicle Category</label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center space-x-2 text-xs font-medium text-slate-700 cursor-pointer">
+                                        <input type="radio" name="filter-segment" value="All" checked onchange="triggerSearchUpdate()" class="text-brand-600 focus:ring-brand-500">
+                                        <span>All Vehicle Categories</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 text-xs font-medium text-slate-700 cursor-pointer">
+                                        <input type="radio" name="filter-segment" value="Sedan/SUV" onchange="triggerSearchUpdate()" class="text-brand-600 focus:ring-brand-500">
+                                        <span>Sedan / SUV (4-7 Seats)</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 text-xs font-medium text-slate-700 cursor-pointer">
+                                        <input type="radio" name="filter-segment" value="Tempo Traveller" onchange="triggerSearchUpdate()" class="text-brand-600 focus:ring-brand-500">
+                                        <span>Tempo Traveller (12-26 Seats)</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 text-xs font-medium text-slate-700 cursor-pointer">
+                                        <input type="radio" name="filter-segment" value="Mini Bus" onchange="triggerSearchUpdate()" class="text-brand-600 focus:ring-brand-500">
+                                        <span>Mini Bus (27-35 Seats)</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 text-xs font-medium text-slate-700 cursor-pointer">
+                                        <input type="radio" name="filter-segment" value="Luxury Bus" onchange="triggerSearchUpdate()" class="text-brand-600 focus:ring-brand-500">
+                                        <span>Luxury Volvo Bus (36-55 Seats)</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Amenities Filter -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-2">Amenities Required</label>
+                                <div class="space-y-2 text-xs">
+                                    <label class="flex items-center space-x-2 text-slate-700 cursor-pointer">
+                                        <input type="checkbox" id="filter-ac" onchange="triggerSearchUpdate()" class="rounded text-brand-600 focus:ring-brand-500">
+                                        <span>Air Conditioner (AC)</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 text-slate-700 cursor-pointer">
+                                        <input type="checkbox" id="filter-recliner" onchange="triggerSearchUpdate()" class="rounded text-brand-600 focus:ring-brand-500">
+                                        <span>Pushback / Recliner Seats</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 text-slate-700 cursor-pointer">
+                                        <input type="checkbox" id="filter-wifi" onchange="triggerSearchUpdate()" class="rounded text-brand-600 focus:ring-brand-500">
+                                        <span>On-board Wi-Fi</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2 text-slate-700 cursor-pointer">
+                                        <input type="checkbox" id="filter-luggage" onchange="triggerSearchUpdate()" class="rounded text-brand-600 focus:ring-brand-500">
+                                        <span>Large Luggage Boot</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Sort Filter -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Sort Results By</label>
+                                <select id="filter-sort" onchange="triggerSearchUpdate()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs font-medium">
+                                    <option value="price-asc">Price: Low to High</option>
+                                    <option value="price-desc">Price: High to Low</option>
+                                    <option value="rating-desc">Top Rated First</option>
+                                    <option value="capacity-desc">Seating Capacity</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Commercial Calculation Summary Banner -->
+                        <div class="bg-gradient-to-br from-brand-800 to-brand-900 text-white p-5 rounded-2xl shadow-md space-y-3">
+                            <div class="flex items-center space-x-2 text-xs font-bold text-brand-100">
+                                <i class="fa-solid fa-route"></i>
+                                <span>COMMERCIAL FARE ALGORITHM</span>
+                            </div>
+                            <div>
+                                <p class="text-xs text-brand-100">Distance Estimate:</p>
+                                <p id="sidebar-dist-calc" class="text-lg font-black text-white">~ 260 KM (2 Days)</p>
+                            </div>
+                            <p class="text-[11px] text-brand-100/80 leading-relaxed">
+                                Rates calculated on <strong class="text-white font-semibold">Max(Distance × Rate/KM, Min KM/Day)</strong> + Driver Daily Allowance + Interstate Toll Estimates.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Right Catalog Vehicles Feed -->
+                    <div class="lg:col-span-3 space-y-4">
+                        <div class="flex justify-between items-center text-xs text-slate-500 px-1">
+                            <span>Showing <strong id="catalog-count" class="text-slate-900">0</strong> verified vehicles available for this route</span>
+                        </div>
+
+                        <div id="catalog-vehicles-container" class="space-y-4">
+                            <!-- Dynamic vehicle cards populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MY BOOKINGS SUB CONTENT -->
+            <div id="renter-sub-bookings" class="hidden space-y-4">
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+                    <h2 class="text-xl font-bold text-slate-900"><i class="fa-solid fa-ticket text-brand-600 mr-2"></i> Your Trip Bookings & Passes</h2>
+                    <div id="renter-bookings-list" class="space-y-4">
+                        <!-- Dynamic bookings rendered here -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ==================== VIEW 2: VEHICLE OWNER / FLEET PORTAL ==================== -->
+        <div id="view-owner" class="role-view hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Owner Form to List Vehicle -->
+                <div class="lg:col-span-2 bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-6">
+                    <div class="border-b border-slate-100 pb-4">
+                        <span class="text-[10px] font-bold text-brand-600 uppercase bg-brand-50 px-2 py-0.5 rounded">Partner Portal</span>
+                        <h2 class="text-xl font-bold text-slate-900 mt-1">List a Commercial Tourist Vehicle</h2>
+                        <p class="text-xs text-slate-500">Register your Tempo Traveller, Bus, or Cab for group bookings.</p>
+                    </div>
+
+                    <form id="owner-add-form" onsubmit="handleOwnerVehicleSubmit(event)" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Vehicle Model Title *</label>
+                                <input type="text" id="owner-title" required placeholder="e.g. Force Urbania Luxury 17-Seater" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold focus:ring-1 focus:ring-brand-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Vehicle Segment *</label>
+                                <select id="owner-segment" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold">
+                                    <option value="Tempo Traveller">Tempo Traveller (12-26 Seats)</option>
+                                    <option value="Sedan/SUV">Sedan / SUV (4-7 Seats)</option>
+                                    <option value="Mini Bus">Mini Bus (27-35 Seats)</option>
+                                    <option value="Luxury Bus">Luxury Volvo Bus (36-55 Seats)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Commercial Reg Number *</label>
+                                <input type="text" id="owner-regno" required placeholder="e.g. KL-07-CC-9911" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold uppercase">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Seating Capacity (Excl. Driver) *</label>
+                                <input type="number" id="owner-capacity" required min="4" max="60" placeholder="17" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold">
+                            </div>
+                        </div>
+
+                        <!-- Commercial Rates Setup -->
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                            <h4 class="text-xs font-bold text-slate-900 uppercase">Commercial Rate Setup</h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Per KM Rate (₹)</label>
+                                    <input type="number" id="owner-rate" required min="10" placeholder="26" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Min KM / Day Threshold</label>
+                                    <input type="number" id="owner-minkm" required min="100" placeholder="250" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Driver Allowance / Day (₹)</label>
+                                    <input type="number" id="owner-allowance" required min="0" placeholder="600" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-semibold">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Details & Amenities -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Operator / Travel Agency *</label>
+                                <input type="text" id="owner-agency" required placeholder="e.g. Royal Kerala Tours" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Base Operating City *</label>
+                                <input type="text" id="owner-city" required placeholder="e.g. Kochi" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Image URL Link</label>
+                            <input type="url" id="owner-image" placeholder="https://images.unsplash.com/photo-..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold">
+                            <p class="text-[10px] text-slate-400 mt-1">Leave blank to use an automated placeholder image.</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-2">Amenities Included</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                                <label class="flex items-center space-x-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                                    <input type="checkbox" id="owner-ac" checked class="rounded text-brand-600">
+                                    <span>Air Conditioned</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                                    <input type="checkbox" id="owner-recliner" checked class="rounded text-brand-600">
+                                    <span>Recliner Seats</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                                    <input type="checkbox" id="owner-wifi" class="rounded text-brand-600">
+                                    <span>Wi-Fi</span>
+                                </label>
+                                <label class="flex items-center space-x-2 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                                    <input type="checkbox" id="owner-luggage" checked class="rounded text-brand-600">
+                                    <span>Luggage Boot</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl shadow-md transition-all text-xs">
+                            Submit Vehicle for Admin Approval
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Owner Fleet & Booking Requests Overview -->
+                <div class="space-y-6">
+                    <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
+                            <i class="fa-solid fa-list-check text-brand-600"></i>
+                            <span>My Fleet Status</span>
+                        </h3>
+                        <div id="owner-fleet-list" class="space-y-3">
+                            <!-- Dynamic owner fleet items populated here -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==================== VIEW 3: ADMIN APPROVAL HUB ==================== -->
+        <div id="view-admin" class="role-view hidden space-y-6">
+            <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900"><i class="fa-solid fa-user-shield text-amber-500 mr-2"></i> Fleet Verification & Compliance Hub</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Review newly listed tourist vehicles before publishing to public renter catalog.</p>
+                    </div>
+                </div>
+
+                <div id="admin-pending-container" class="space-y-4">
+                    <!-- Dynamic pending items populated here -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    
+    <!-- MODAL 1: FARE COMPUTATION BREAKDOWN -->
+    <div id="modal-fare" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100">
+            <div class="bg-slate-900 text-white p-5 flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-calculator text-amber-400"></i>
+                    <h3 class="font-bold text-base">Commercial Fare Computation</h3>
+                </div>
+                <button onclick="closeModal('modal-fare')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex justify-between items-center">
+                    <div>
+                        <p id="mf-title" class="font-bold text-slate-900 text-sm">Force Urbania</p>
+                        <p id="mf-agency" class="text-xs text-slate-500">Kerala Tourist Fleet</p>
+                    </div>
+                    <span id="mf-rate" class="bg-brand-100 text-brand-800 text-xs font-bold px-2.5 py-1 rounded-full">₹26 / KM</span>
+                </div>
+
+                <div class="space-y-2 text-xs border-b border-slate-100 pb-4">
+                    <div class="flex justify-between text-slate-600">
+                        <span>Total Route Distance</span>
+                        <span id="mf-dist" class="font-semibold text-slate-900">260 KM</span>
+                    </div>
+                    <div class="flex justify-between text-slate-600">
+                        <span>Trip Duration</span>
+                        <span id="mf-days" class="font-semibold text-slate-900">2 Days</span>
+                    </div>
+                    <div class="flex justify-between text-slate-600">
+                        <span>Min Charged Distance</span>
+                        <span id="mf-minm" class="font-semibold text-slate-900">500 KM (250 KM/day)</span>
+                    </div>
+                    <div class="flex justify-between text-brand-700 font-semibold pt-1">
+                        <span>Base Distance Charge (<span id="mf-kmcalc">500 KM × ₹26</span>)</span>
+                        <span id="mf-basecharge" class="font-bold">₹13,000</span>
+                    </div>
+                    <div class="flex justify-between text-slate-600">
+                        <span>Driver Daily Allowance (<span id="mf-drivercalc">2 Days × ₹600</span>)</span>
+                        <span id="mf-drivercharge" class="font-semibold text-slate-900">₹1,200</span>
+                    </div>
+                    <div class="flex justify-between text-slate-600">
+                        <span>Est. State Tolls & Permits</span>
+                        <span id="mf-tollcharge" class="font-semibold text-slate-900">₹830</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-1">
+                    <div>
+                        <p class="text-[10px] text-slate-400 uppercase font-bold">Total Estimated Fare</p>
+                        <p id="mf-total" class="text-2xl font-black text-brand-600">₹15,030</p>
+                    </div>
+                    <button id="mf-book-btn" class="bg-brand-600 hover:bg-brand-700 text-white font-bold px-5 py-2.5 rounded-xl shadow-md text-xs">
+                        Book This Vehicle
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: VEHICLE DETAILS OVERVIEW -->
+    <div id="modal-details" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden border border-slate-100 max-h-[90vh] flex flex-col">
+            <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+                <h3 id="md-title" class="font-bold text-base">Vehicle Specifications</h3>
+                <button onclick="closeModal('modal-details')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto custom-scrollbar space-y-5">
+                <!-- Image Header -->
+                <div class="relative h-56 rounded-xl overflow-hidden bg-slate-100">
+                    <img id="md-image" src="" alt="Vehicle" class="w-full h-full object-cover">
+                    <span id="md-segment" class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full">
+                        Tempo Traveller
+                    </span>
+                </div>
+
+                <!-- Attributes Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <span class="text-slate-400 block font-medium">Seating Capacity</span>
+                        <span id="md-capacity" class="font-bold text-slate-900 text-sm">17 Seater</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <span class="text-slate-400 block font-medium">Commercial Permit</span>
+                        <span id="md-permit" class="font-bold text-emerald-700 text-sm">All India Tourist</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <span class="text-slate-400 block font-medium">Driver Languages</span>
+                        <span id="md-lang" class="font-bold text-slate-900 text-sm">English, Hindi</span>
+                    </div>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <span class="text-slate-400 block font-medium">Rating Score</span>
+                        <span id="md-rating" class="font-bold text-amber-600 text-sm">★ 4.9 / 5.0</span>
+                    </div>
+                </div>
+
+                <!-- Amenities Checklist -->
+                <div>
+                    <h4 class="text-xs font-bold text-slate-900 uppercase mb-2">On-Board Features</h4>
+                    <div id="md-amenities-list" class="flex flex-wrap gap-2 text-xs">
+                        <!-- Dynamic chips -->
+                    </div>
+                </div>
+
+                <!-- Operator Banner -->
+                <div class="bg-brand-50 border border-brand-100 p-4 rounded-xl flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] text-brand-600 font-bold uppercase">Fleet Operator</p>
+                        <p id="md-agency" class="font-bold text-slate-900 text-sm">Kerala Tourist Fleet</p>
+                        <p id="md-city" class="text-xs text-slate-500">Base Location: Kochi</p>
+                    </div>
+                    <span class="bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-1 rounded-full"><i class="fa-solid fa-circle-check mr-1"></i> Verified Agency</span>
+                </div>
+            </div>
+
+            <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end space-x-2">
+                <button onclick="closeModal('modal-details')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl text-xs">Close</button>
+                <button id="md-book-btn" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl text-xs shadow-sm">Proceed to Reserve</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: BOOKING STEP FORM & CONFIRMATION -->
+    <div id="modal-booking" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden border border-slate-100">
+            <div class="bg-brand-600 text-white p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-base">Reserve Vehicle Booking</h3>
+                    <p class="text-xs text-brand-100">Zero cancellation fee up to 24 hours prior</p>
+                </div>
+                <button onclick="closeModal('modal-booking')" class="text-brand-200 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form onsubmit="handleBookingFormSubmit(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Lead Passenger Full Name *</label>
+                    <input type="text" id="bk-name" required placeholder="e.g. Rahul Sharma" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Phone Number *</label>
+                        <input type="tel" id="bk-phone" required placeholder="+91 98765 43210" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Passenger Count *</label>
+                        <input type="number" id="bk-pax" required min="1" max="60" value="12" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Pickup Address / Hotel Location *</label>
+                    <textarea id="bk-pickup" required rows="2" placeholder="e.g. Fort Kochi Hotel, Beach Road" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Payment Method Selection</label>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <label class="border border-slate-300 p-2.5 rounded-xl flex items-center space-x-2 cursor-pointer bg-slate-50">
+                            <input type="radio" name="bk-payment" value="deposit" checked class="text-brand-600">
+                            <span>Pay 20% Deposit (₹2,000)</span>
+                        </label>
+                        <label class="border border-slate-300 p-2.5 rounded-xl flex items-center space-x-2 cursor-pointer bg-slate-50">
+                            <input type="radio" name="bk-payment" value="driver" class="text-brand-600">
+                            <span>Pay Driver at Pickup</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl shadow-md transition-all text-xs">
+                    Confirm & Generate Digital Pass
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // GLOBAL STATE STORE
+        const state = {
+            activeRole: 'renter', // 'renter', 'owner', 'admin'
+            renterSubTab: 'search', // 'search', 'my-bookings'
+            tripType: 'roundtrip', // 'roundtrip', 'oneway'
+            activeVehicleForModal: null,
+
+            // Pre-loaded Commercial Vehicles
+            vehicles: [
+                {
+                    id: 101,
+                    title: "Force Urbania Luxury Cruiser",
+                    segment: "Tempo Traveller",
+                    capacity: 17,
+                    ratePerKm: 26,
+                    minKmPerDay: 250,
+                    driverAllowancePerDay: 600,
+                    agency: "Kerala Tourist Fleet",
+                    city: "Kochi",
+                    rating: 4.9,
+                    reviewsCount: 48,
+                    permit: "All India Tourist Permit",
+                    driverLang: "English, Hindi, Malayalam",
+                    amenities: { ac: true, recliner: true, wifi: true, luggage: true },
+                    approved: true,
+                    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=700&q=80"
+                },
+                {
+                    id: 102,
+                    title: "Volvo 9400 B11R Multi-Axle Luxury",
+                    segment: "Luxury Bus",
+                    capacity: 45,
+                    ratePerKm: 58,
+                    minKmPerDay: 300,
+                    driverAllowancePerDay: 1000,
+                    agency: "Royal Express Coaches",
+                    city: "Kochi",
+                    rating: 4.8,
+                    reviewsCount: 92,
+                    permit: "National Interstate Permit",
+                    driverLang: "English, Hindi, Tamil",
+                    amenities: { ac: true, recliner: true, wifi: true, luggage: true },
+                    approved: true,
+                    image: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=700&q=80"
+                },
+                {
+                    id: 103,
+                    title: "Toyota Innova Crysta 2.8 ZX",
+                    segment: "Sedan/SUV",
+                    capacity: 7,
+                    ratePerKm: 18,
+                    minKmPerDay: 200,
+                    driverAllowancePerDay: 400,
+                    agency: "Premier Airport Cabs",
+                    city: "Kochi",
+                    rating: 4.9,
+                    reviewsCount: 120,
+                    permit: "State Commercial Tourist",
+                    driverLang: "English, Hindi",
+                    amenities: { ac: true, recliner: true, wifi: false, luggage: true },
+                    approved: true,
+                    image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=700&q=80"
+                },
+                {
+                    id: 104,
+                    title: "Eicher Skyline Tourist Mini Bus",
+                    segment: "Mini Bus",
+                    capacity: 28,
+                    ratePerKm: 38,
+                    minKmPerDay: 250,
+                    driverAllowancePerDay: 800,
+                    agency: "Highland Bus Services",
+                    city: "Munnar",
+                    rating: 4.6,
+                    reviewsCount: 31,
+                    permit: "State Commercial Tourist",
+                    driverLang: "English, Malayalam",
+                    amenities: { ac: true, recliner: false, wifi: true, luggage: true },
+                    approved: true,
+                    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=700&q=80"
+                },
+                // Initial Pending Admin Item
+                {
+                    id: 105,
+                    title: "Force Executive 12-Seater TT",
+                    segment: "Tempo Traveller",
+                    capacity: 12,
+                    ratePerKm: 22,
+                    minKmPerDay: 250,
+                    driverAllowancePerDay: 500,
+                    agency: "God's Own Travels",
+                    city: "Kochi",
+                    regNo: "KL-07-DE-8822",
+                    rating: 5.0,
+                    reviewsCount: 1,
+                    permit: "All India Tourist Permit",
+                    driverLang: "English, Hindi",
+                    amenities: { ac: true, recliner: true, wifi: false, luggage: true },
+                    approved: false, // PENDING
+                    image: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=700&q=80"
+                }
+            ],
+
+            // User Confirmed Bookings
+            bookings: [
+                {
+                    id: "TR-9901",
+                    vehicleTitle: "Force Urbania Luxury Cruiser",
+                    from: "Kochi",
+                    to: "Munnar",
+                    startDate: "2026-10-15",
+                    endDate: "2026-10-17",
+                    pax: 14,
+                    passengerName: "Alex Morgan",
+                    phone: "+91 98470 12345",
+                    totalPrice: 15030,
+                    paymentMethod: "Deposit Paid (₹2,000)"
+                }
+            ]
+        };
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            const defaultEnd = new Date(today);
+            defaultEnd.setDate(defaultEnd.getDate() + 2);
+
+            document.getElementById('search-start-date').value = today.toISOString().split('T')[0];
+            document.getElementById('search-end-date').value = defaultEnd.toISOString().split('T')[0];
+
+            triggerSearchUpdate();
+            renderBookingsList();
+            renderOwnerFleetList();
+            renderAdminPendingList();
+        });
+
+        // ROLE SWITCHING ENGINE
+        function switchRole(role) {
+            state.activeRole = role;
+            
+            // Hide all role views
+            document.querySelectorAll('.role-view').forEach(v => v.classList.add('hidden'));
+            
+            // Update role buttons UI
+            ['renter', 'owner', 'admin'].forEach(r => {
+                const btn = document.getElementById(`role-btn-${r}`);
+                if(r === role) {
+                    btn.className = "px-3 py-1.5 rounded-lg text-brand-600 bg-white shadow-sm transition-all flex items-center space-x-1 font-bold";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all flex items-center space-x-1";
+                }
+            });
+
+            // Show selected view
+            document.getElementById(`view-${role}`).classList.remove('hidden');
+        }
+
+        // RENTER SUB TAB SWITCHING
+        function switchRenterTab(subTab) {
+            state.renterSubTab = subTab;
+            const btnSearch = document.getElementById('tab-btn-search');
+            const btnBookings = document.getElementById('tab-btn-bookings');
+            const subSearch = document.getElementById('renter-sub-search');
+            const subBookings = document.getElementById('renter-sub-bookings');
+
+            if(subTab === 'search') {
+                btnSearch.className = "px-4 py-2.5 font-bold text-sm text-brand-600 border-b-2 border-brand-600 flex items-center space-x-2";
+                btnBookings.className = "px-4 py-2.5 font-semibold text-sm text-slate-500 hover:text-slate-900 flex items-center space-x-2";
+                subSearch.classList.remove('hidden');
+                subBookings.classList.add('hidden');
+            } else {
+                btnBookings.className = "px-4 py-2.5 font-bold text-sm text-brand-600 border-b-2 border-brand-600 flex items-center space-x-2";
+                btnSearch.className = "px-4 py-2.5 font-semibold text-sm text-slate-500 hover:text-slate-900 flex items-center space-x-2";
+                subBookings.classList.remove('hidden');
+                subSearch.classList.add('hidden');
+            }
+        }
+
+        function setTripType(type) {
+            state.tripType = type;
+            const btnRound = document.getElementById('btn-triptype-round');
+            const btnOneway = document.getElementById('btn-triptype-oneway');
+
+            if(type === 'roundtrip') {
+                btnRound.className = "px-3 py-1.5 rounded-lg bg-white shadow-sm text-brand-600 font-bold";
+                btnOneway.className = "px-3 py-1.5 rounded-lg text-slate-600";
+            } else {
+                btnOneway.className = "px-3 py-1.5 rounded-lg bg-white shadow-sm text-brand-600 font-bold";
+                btnRound.className = "px-3 py-1.5 rounded-lg text-slate-600";
+            }
+
+            triggerSearchUpdate();
+        }
+
+        // DYNAMIC FARE ALGORITHM
+        function calculateTripMetrics() {
+            const from = document.getElementById('search-from').value.trim() || 'Kochi';
+            const to = document.getElementById('search-to').value.trim() || 'Munnar';
+            const startDate = new Date(document.getElementById('search-start-date').value);
+            const endDate = new Date(document.getElementById('search-end-date').value);
+
+            let days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+            if(isNaN(days) || days < 1) days = 1;
+
+            // Hash string for deterministic route distance simulation
+            const routeSeed = (from.length + to.length) * 15;
+            const oneWayKm = 100 + (routeSeed % 200);
+            const totalDistance = state.tripType === 'roundtrip' ? oneWayKm * 2 : oneWayKm;
+
+            return { from, to, days, totalDistance };
+        }
+
+        function computeCommercialFare(vehicle, trip) {
+            const billableKm = Math.max(trip.totalDistance, vehicle.minKmPerDay * trip.days);
+            const baseKmCharge = billableKm * vehicle.ratePerKm;
+            const driverAllowance = vehicle.driverAllowancePerDay * trip.days;
+            const estimatedTolls = Math.round(trip.totalDistance * 3.2);
+
+            const totalEstimatedPrice = baseKmCharge + driverAllowance + estimatedTolls;
+
+            return {
+                billableKm,
+                baseKmCharge,
+                driverAllowance,
+                estimatedTolls,
+                totalEstimatedPrice
+            };
+        }
+
+        // RENDER MARKETPLACE CATALOG
+        function triggerSearchUpdate() {
+            const trip = calculateTripMetrics();
+
+            // Update Sidebar Info
+            document.getElementById('sidebar-dist-calc').innerText = `~ ${trip.totalDistance} KM (${trip.days} Day${trip.days > 1 ? 's' : ''})`;
+
+            // Filters
+            const selectedSegment = document.querySelector('input[name="filter-segment"]:checked').value;
+            const reqAc = document.getElementById('filter-ac').checked;
+            const reqRecliner = document.getElementById('filter-recliner').checked;
+            const reqWifi = document.getElementById('filter-wifi').checked;
+            const reqLuggage = document.getElementById('filter-luggage').checked;
+            const sortBy = document.getElementById('filter-sort').value;
+
+            // Filter vehicles (Must be approved by Admin)
+            let list = state.vehicles.filter(v => v.approved);
+
+            if(selectedSegment !== 'All') {
+                list = list.filter(v => v.segment === selectedSegment);
+            }
+
+            if(reqAc) list = list.filter(v => v.amenities.ac);
+            if(reqRecliner) list = list.filter(v => v.amenities.recliner);
+            if(reqWifi) list = list.filter(v => v.amenities.wifi);
+            if(reqLuggage) list = list.filter(v => v.amenities.luggage);
+
+            // Sort
+            list.sort((a, b) => {
+                const fareA = computeCommercialFare(a, trip).totalEstimatedPrice;
+                const fareB = computeCommercialFare(b, trip).totalEstimatedPrice;
+                if(sortBy === 'price-asc') return fareA - fareB;
+                if(sortBy === 'price-desc') return fareB - fareA;
+                if(sortBy === 'rating-desc') return b.rating - a.rating;
+                if(sortBy === 'capacity-desc') return b.capacity - a.capacity;
+                return 0;
+            });
+
+            document.getElementById('catalog-count').innerText = list.length;
+            renderCatalogCards(list, trip);
+        }
+
+        function renderCatalogCards(list, trip) {
+            const container = document.getElementById('catalog-vehicles-container');
+            container.innerHTML = '';
+
+            if(list.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-2xl p-8 text-center border border-slate-200">
+                        <i class="fa-solid fa-bus text-4xl text-slate-300 mb-2"></i>
+                        <h3 class="font-bold text-slate-800">No matching vehicles found</h3>
+                        <p class="text-xs text-slate-500 mt-1">Try resetting amenity filters or expanding your category search.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.forEach(v => {
+                const fare = computeCommercialFare(v, trip);
+
+                const cardHtml = `
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row">
+                        <div class="md:w-5/12 relative bg-slate-100 min-h-[190px]">
+                            <img src="${v.image}" alt="${v.title}" class="w-full h-full object-cover">
+                            <span class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-[11px] font-bold px-2.5 py-1 rounded-full">
+                                <i class="fa-solid fa-users mr-1"></i> ${v.capacity} Seats
+                            </span>
+                        </div>
+
+                        <div class="p-5 md:w-7/12 flex flex-col justify-between space-y-3">
+                            <div>
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="text-[10px] font-extrabold text-brand-600 uppercase tracking-wider">${v.segment}</span>
+                                        <h3 class="font-bold text-slate-900 text-base leading-tight">${v.title}</h3>
+                                        <p class="text-xs text-slate-500 mt-0.5"><i class="fa-solid fa-shield-halved text-emerald-600 mr-1"></i> ${v.agency} • Base: ${v.city}</p>
+                                    </div>
+                                    <div class="bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-lg text-xs font-bold text-amber-800 flex items-center space-x-1">
+                                        <i class="fa-solid fa-star text-amber-500"></i>
+                                        <span>${v.rating}</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex flex-wrap gap-1.5 mt-3 text-[11px]">
+                                    ${v.amenities.ac ? '<span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium"><i class="fa-snowflake text-sky-500 mr-1"></i>AC</span>' : ''}
+                                    ${v.amenities.recliner ? '<span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium"><i class="fa-chair text-indigo-500 mr-1"></i>Recliners</span>' : ''}
+                                    ${v.amenities.wifi ? '<span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium"><i class="fa-wifi text-emerald-500 mr-1"></i>Wi-Fi</span>' : ''}
+                                    ${v.amenities.luggage ? '<span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-medium"><i class="fa-suitcase text-amber-600 mr-1"></i>Luggage</span>' : ''}
+                                </div>
+                            </div>
+
+                            <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                                <div>
+                                    <span class="text-2xl font-black text-slate-900">₹${fare.totalEstimatedPrice.toLocaleString()}</span>
+                                    <p class="text-[10px] text-slate-400">₹${v.ratePerKm}/km • Min ${v.minKmPerDay} km/day</p>
+                                </div>
+
+                                <div class="flex space-x-2">
+                                    <button onclick="openDetailsModal(${v.id})" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3 py-2 rounded-xl transition-all">
+                                        Details
+                                    </button>
+                                    <button onclick="openFareModal(${v.id})" class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-sm transition-all">
+                                        Fare Breakdown
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        function resetFilters() {
+            document.querySelectorAll('input[name="filter-segment"]')[0].checked = true;
+            document.getElementById('filter-ac').checked = false;
+            document.getElementById('filter-recliner').checked = false;
+            document.getElementById('filter-wifi').checked = false;
+            document.getElementById('filter-luggage').checked = false;
+            document.getElementById('filter-sort').value = 'price-asc';
+            triggerSearchUpdate();
+        }
+
+        // MODAL EVENT HANDLERS
+        function openFareModal(vehicleId) {
+            const vehicle = state.vehicles.find(v => v.id === vehicleId);
+            if(!vehicle) return;
+
+            state.activeVehicleForModal = vehicle;
+            const trip = calculateTripMetrics();
+            const fare = computeCommercialFare(vehicle, trip);
+
+            document.getElementById('mf-title').innerText = vehicle.title;
+            document.getElementById('mf-agency').innerText = vehicle.agency;
+            document.getElementById('mf-rate').innerText = `₹${vehicle.ratePerKm} / KM`;
+
+            document.getElementById('mf-dist').innerText = `${trip.totalDistance} KM`;
+            document.getElementById('mf-days').innerText = `${trip.days} Day${trip.days > 1 ? 's' : ''}`;
+            document.getElementById('mf-minm').innerText = `${vehicle.minKmPerDay * trip.days} KM (${vehicle.minKmPerDay} KM/day)`;
+            document.getElementById('mf-kmcalc').innerText = `${fare.billableKm} KM × ₹${vehicle.ratePerKm}`;
+            document.getElementById('mf-basecharge').innerText = `₹${fare.baseKmCharge.toLocaleString()}`;
+
+            document.getElementById('mf-drivercalc').innerText = `${trip.days} Days × ₹${vehicle.driverAllowancePerDay}`;
+            document.getElementById('mf-drivercharge').innerText = `₹${fare.driverAllowance.toLocaleString()}`;
+
+            document.getElementById('mf-tollcharge').innerText = `₹${fare.estimatedTolls.toLocaleString()}`;
+            document.getElementById('mf-total').innerText = `₹${fare.totalEstimatedPrice.toLocaleString()}`;
+
+            document.getElementById('mf-book-btn').onclick = () => {
+                closeModal('modal-fare');
+                openBookingModal();
+            };
+
+            document.getElementById('modal-fare').classList.remove('hidden');
+        }
+
+        function openDetailsModal(vehicleId) {
+            const vehicle = state.vehicles.find(v => v.id === vehicleId);
+            if(!vehicle) return;
+
+            state.activeVehicleForModal = vehicle;
+
+            document.getElementById('md-title').innerText = vehicle.title;
+            document.getElementById('md-image').src = vehicle.image;
+            document.getElementById('md-segment').innerText = vehicle.segment;
+            document.getElementById('md-capacity').innerText = `${vehicle.capacity} Seats`;
+            document.getElementById('md-permit').innerText = vehicle.permit || 'Commercial Tourist';
+            document.getElementById('md-lang').innerText = vehicle.driverLang || 'English';
+            document.getElementById('md-rating').innerText = `★ ${vehicle.rating} / 5.0`;
+
+            document.getElementById('md-agency').innerText = vehicle.agency;
+            document.getElementById('md-city').innerText = `Base Location: ${vehicle.city}`;
+
+            const amenList = document.getElementById('md-amenities-list');
+            amenList.innerHTML = `
+                ${vehicle.amenities.ac ? '<span class="bg-slate-100 text-slate-800 px-3 py-1 rounded-lg font-semibold"><i class="fa-snowflake text-sky-500 mr-1.5"></i>Air Conditioned</span>' : ''}
+                ${vehicle.amenities.recliner ? '<span class="bg-slate-100 text-slate-800 px-3 py-1 rounded-lg font-semibold"><i class="fa-chair text-indigo-500 mr-1.5"></i>Pushback Seats</span>' : ''}
+                ${vehicle.amenities.wifi ? '<span class="bg-slate-100 text-slate-800 px-3 py-1 rounded-lg font-semibold"><i class="fa-wifi text-emerald-500 mr-1.5"></i>On-board Wi-Fi</span>' : ''}
+                ${vehicle.amenities.luggage ? '<span class="bg-slate-100 text-slate-800 px-3 py-1 rounded-lg font-semibold"><i class="fa-suitcase text-amber-600 mr-1.5"></i>Luggage Boot</span>' : ''}
+            `;
+
+            document.getElementById('md-book-btn').onclick = () => {
+                closeModal('modal-details');
+                openBookingModal();
+            };
+
+            document.getElementById('modal-details').classList.remove('hidden');
+        }
+
+        function openBookingModal() {
+            if(!state.activeVehicleForModal) return;
+            document.getElementById('modal-booking').classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        // BOOKING SUBMISSION & RECEIPT GENERATION
+        function handleBookingFormSubmit(e) {
+            e.preventDefault();
+            const vehicle = state.activeVehicleForModal;
+            if(!vehicle) return;
+
+            const trip = calculateTripMetrics();
+            const fare = computeCommercialFare(vehicle, trip);
+
+            const newBooking = {
+                id: "TR-" + Math.floor(1000 + Math.random() * 9000),
+                vehicleTitle: vehicle.title,
+                from: trip.from,
+                to: trip.to,
+                startDate: document.getElementById('search-start-date').value,
+                endDate: document.getElementById('search-end-date').value,
+                pax: document.getElementById('bk-pax').value,
+                passengerName: document.getElementById('bk-name').value,
+                phone: document.getElementById('bk-phone').value,
+                totalPrice: fare.totalEstimatedPrice,
+                paymentMethod: document.querySelector('input[name="bk-payment"]:checked').value === 'deposit' ? 'Deposit Paid (₹2,000)' : 'Pay Driver on Arrival'
+            };
+
+            state.bookings.unshift(newBooking);
+            closeModal('modal-booking');
+
+            renderBookingsList();
+            switchRenterTab('my-bookings');
+        }
+
+        function renderBookingsList() {
+            const container = document.getElementById('renter-bookings-list');
+            document.getElementById('renter-booking-count').innerText = state.bookings.length;
+
+            if(state.bookings.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center p-8 bg-slate-50 rounded-xl border border-slate-200">
+                        <i class="fa-solid fa-ticket text-3xl text-slate-300 mb-2"></i>
+                        <p class="font-bold text-slate-800 text-sm">No bookings found</p>
+                        <p class="text-xs text-slate-500 mt-1">Search available vehicles to make your first booking.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+            state.bookings.forEach(b => {
+                const card = `
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+                        <div class="flex justify-between items-start border-b border-slate-200 pb-3">
+                            <div>
+                                <span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full">CONFIRMED PASS</span>
+                                <h3 class="font-bold text-slate-900 text-base mt-1">${b.vehicleTitle}</h3>
+                                <p class="text-xs text-slate-500">Pass Reference ID: <strong class="text-slate-800">${b.id}</strong></p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xl font-black text-brand-600">₹${b.totalPrice.toLocaleString()}</span>
+                                <p class="text-[10px] text-slate-400 font-semibold">${b.paymentMethod}</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                            <div>
+                                <span class="text-slate-400 block font-medium">Route</span>
+                                <span class="font-bold text-slate-800">${b.from} ➔ ${b.to}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block font-medium">Travel Dates</span>
+                                <span class="font-bold text-slate-800">${b.startDate} to ${b.endDate}</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block font-medium">Passenger</span>
+                                <span class="font-bold text-slate-800">${b.passengerName} (${b.pax} pax)</span>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block font-medium">Contact</span>
+                                <span class="font-bold text-slate-800">${b.phone}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-2 pt-2 border-t border-slate-200">
+                            <button onclick="alert('Digital Pass Receipt for ${b.id} sent to driver.')" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold rounded-lg text-xs">
+                                <i class="fa-solid fa-download mr-1"></i> Receipt PDF
+                            </button>
+                            <button onclick="cancelBooking('${b.id}')" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-lg text-xs">
+                                Cancel Trip
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', card);
+            });
+        }
+
+        function cancelBooking(id) {
+            if(confirm(`Cancel booking pass ${id}?`)) {
+                state.bookings = state.bookings.filter(b => b.id !== id);
+                renderBookingsList();
+            }
+        }
+
+        // FLEET OWNER HANDLERS
+        function handleOwnerVehicleSubmit(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('owner-title').value;
+            const segment = document.getElementById('owner-segment').value;
+            const regno = document.getElementById('owner-regno').value;
+            const capacity = parseInt(document.getElementById('owner-capacity').value);
+            const ratePerKm = parseFloat(document.getElementById('owner-rate').value);
+            const minKmPerDay = parseInt(document.getElementById('owner-minkm').value);
+            const driverAllowancePerDay = parseFloat(document.getElementById('owner-allowance').value);
+            const agency = document.getElementById('owner-agency').value;
+            const city = document.getElementById('owner-city').value;
+            let img = document.getElementById('owner-image').value;
+
+            if(!img) img = "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=700&q=80";
+
+            const newVehicle = {
+                id: Date.now(),
+                title,
+                segment,
+                capacity,
+                ratePerKm,
+                minKmPerDay,
+                driverAllowancePerDay,
+                agency,
+                city,
+                regNo: regno,
+                rating: 5.0,
+                reviewsCount: 0,
+                permit: "All India Tourist Permit",
+                driverLang: "English, Hindi",
+                amenities: {
+                    ac: document.getElementById('owner-ac').checked,
+                    recliner: document.getElementById('owner-recliner').checked,
+                    wifi: document.getElementById('owner-wifi').checked,
+                    luggage: document.getElementById('owner-luggage').checked
+                },
+                approved: false, // Requires admin approval
+                image: img
+            };
+
+            state.vehicles.push(newVehicle);
+            document.getElementById('owner-add-form').reset();
+
+            renderOwnerFleetList();
+            renderAdminPendingList();
+
+            alert(`✅ Vehicle submitted! Switch to the Admin Hub to approve listing "${title}".`);
+            switchRole('admin');
+        }
+
+        function renderOwnerFleetList() {
+            const container = document.getElementById('owner-fleet-list');
+            container.innerHTML = '';
+
+            state.vehicles.forEach(v => {
+                const item = `
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <span class="${v.approved ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'} text-[10px] font-bold px-2 py-0.5 rounded">
+                                ${v.approved ? 'Live on Catalog' : 'Pending Admin Verification'}
+                            </span>
+                            <h4 class="font-bold text-slate-900 text-xs mt-1">${v.title}</h4>
+                            <p class="text-[10px] text-slate-500">${v.agency} • ₹${v.ratePerKm}/km</p>
+                        </div>
+                        <span class="text-xs font-bold text-slate-700">${v.capacity} Seats</span>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', item);
+            });
+        }
+
+        // ADMIN HUB HANDLERS
+        function renderAdminPendingList() {
+            const container = document.getElementById('admin-pending-container');
+            const pendingList = state.vehicles.filter(v => !v.approved);
+
+            document.getElementById('admin-badge-count').innerText = pendingList.length;
+
+            if(pendingList.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center p-8 bg-slate-50 rounded-xl border border-slate-200">
+                        <i class="fa-solid fa-circle-check text-3xl text-emerald-500 mb-2"></i>
+                        <p class="font-bold text-slate-800 text-sm">All submissions verified</p>
+                        <p class="text-xs text-slate-500 mt-1">No pending vehicle listings requiring review.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+            pendingList.forEach(v => {
+                const card = `
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded">Pending Approval</span>
+                            <h4 class="font-bold text-slate-900 text-sm mt-1">${v.title} (${v.capacity} Seats)</h4>
+                            <p class="text-xs text-slate-600">${v.agency} • Reg: <strong class="text-slate-800">${v.regNo || 'KL-07-XX'}</strong> • ₹${v.ratePerKm}/km</p>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <button onclick="approveAdminVehicle(${v.id})" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-1.5 rounded-lg shadow-sm">
+                                <i class="fa-solid fa-check mr-1"></i> Approve
+                            </button>
+                            <button onclick="rejectAdminVehicle(${v.id})" class="bg-red-100 hover:bg-red-200 text-red-700 font-bold text-xs px-3 py-1.5 rounded-lg">
+                                Reject
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', card);
+            });
+        }
+
+        function approveAdminVehicle(id) {
+            const vehicle = state.vehicles.find(v => v.id === id);
+            if(vehicle) {
+                vehicle.approved = true;
+                renderAdminPendingList();
+                renderOwnerFleetList();
+                triggerSearchUpdate();
+                alert(`Vehicle "${vehicle.title}" approved! It is now live in the Renter catalog.`);
+            }
+        }
+
+        function rejectAdminVehicle(id) {
+            if(confirm("Reject this vehicle submission?")) {
+                state.vehicles = state.vehicles.filter(v => v.id !== id);
+                renderAdminPendingList();
+                renderOwnerFleetList();
+            }
+        }
+    </script>
+</body>
+</html>
