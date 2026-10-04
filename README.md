@@ -1,4 +1,4 @@
-# 🚐 TourRide — Tourist Vehicle Pre-Booking & Price Aggregator Platform
+# 🚐 Trip on Wheels — Tourist Vehicle Pre-Booking & Price Aggregator Platform
 
 > A full-stack web application for pre-booking commercial group tourist vehicles (Tempo Travellers, Mini Buses, Volvo Coaches, and SUVs) with dynamic fare calculation, multi-tier user roles, fleet management, and admin approval workflows.
 
@@ -6,7 +6,7 @@
 
 ## 📌 Project Overview
 
-Unlike regular point-to-point ride-hailing apps (e.g., Uber/Ola), outstation group transport requires multi-variable pricing models and extended driver coordination. **TourRide** addresses this fragmented market by connecting group travellers directly with verified fleet owners.
+Unlike regular point-to-point ride-hailing apps (e.g., Uber/Ola), outstation group transport requires multi-variable pricing models and extended driver coordination. **Trip on wheels** addresses this fragmented market by connecting group travellers directly with verified fleet owners.
 
 Users can compare transparent pricing breakdowns across vehicle segments, book outstation routes, and receive instant digital receipts, while fleet operators can manage their listings and track earnings.
 
